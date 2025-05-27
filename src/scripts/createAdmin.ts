@@ -1,12 +1,17 @@
-// scripts/createAdmin.ts
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import "dotenv/config";
-
+import dotenv from "dotenv";
 import User from "../models/User";
 
+dotenv.config({path: '.env.local'});
+
 async function createAdmin() {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    const dbUrl = process.env.MONGODB_URI;    
+    if (!dbUrl) {
+        throw new Error("MONGODB_URI must be set in .env");
+    }
+
+    await mongoose.connect(dbUrl);
     const username = process.env.ADMIN_USERNAME;
     const userpwd = process.env.ADMIN_PASSWORD;
 
