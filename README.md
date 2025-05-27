@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Create Admin User Password
+
+```bash
+ts-node scripts/createAdmin.ts
+```
+
 First, run the development server:
 
 ```bash
