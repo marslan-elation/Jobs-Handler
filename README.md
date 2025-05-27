@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 Create Admin User Password
 
 ```bash
-ts-node scripts/createAdmin.ts
+npx tsx src/scripts/createAdmin.ts
 ```
 
 First, run the development server:
