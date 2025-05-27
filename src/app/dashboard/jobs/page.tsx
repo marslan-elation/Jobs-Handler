@@ -4,12 +4,23 @@ import useSWR from "swr";
 import { useState } from "react";
 import { Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { Job } from "../../types/job";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function JobsDashboard() {
     const { data: jobs, mutate } = useSWR("/api/jobs", fetcher);
     const [loadingId, setLoadingId] = useState<string | null>(null);
+    const [filters, setFilters] = useState({
+        company: "",
+        platform: "",
+        jobType: "",
+        status: "",
+        city: "",
+        country: "",
+    });
+    const [sortKey, setSortKey] = useState<keyof Job>("appliedDate");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
     const tableHeaders = [
         'Sr. No', 'Company', 'Platform', 'Job Type', 'Job Link', 'Job Title',
@@ -116,8 +127,21 @@ export default function JobsDashboard() {
                     href="/dashboard/jobs/new"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
-                    ➕ Add Job
+                    Add Job
                 </Link>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                <input type="text" placeholder="Company" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, company: e.target.value })} />
+                <input type="text" placeholder="Platform" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, platform: e.target.value })} />
+                <select className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
+                    <option value="">All Types</option>
+                    {["Remote", "Onsite", "Hybrid", "Contract", "Freelance", "Part-time", "Full-time"].map(type => <option key={type}>{type}</option>)}
+                </select>
+                <select className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+                    <option value="">All Statuses</option>
+                    {["Pending", "Interviewed", "Offered", "Rejected by Company", "Rejected by Me"].map(status => <option key={status}>{status}</option>)}
+                </select>
             </div>
 
             {/* Scrollable table wrapper */}
@@ -125,23 +149,56 @@ export default function JobsDashboard() {
                 <table className="table-auto min-w-[2200px] border text-sm whitespace-nowrap">
                     <thead className="bg-gray-100 text-black">
                         <tr>
-                            {tableHeaders.map((header) => (
-                                <th key={header} className="border px-4 py-2 font-semibold text-left">
+                            {tableHeaders.map((header, i) => (
+                                <th
+                                    key={header}
+                                    className="border px-4 py-2 cursor-pointer"
+                                    onClick={() => {
+                                        const key = columns[i].key;
+                                        if (sortKey === key) {
+                                            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                        } else {
+                                            setSortKey(key as keyof Job);
+                                            setSortOrder("asc");
+                                        }
+                                    }}
+                                >
                                     {header}
+                                    {sortKey === columns[i].key && (sortOrder === "asc" ? " 🔼" : " 🔽")}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {jobs?.map((job: any, index: number) => (
-                            <tr key={job._id}>
-                                {columns.map((col) => (
-                                    <td key={col.key} className="border px-4 py-2">
-                                        {col.render(job, index)}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
+                        {jobs?.filter((job: Job) =>
+                            (!filters.company || job.company?.toLowerCase().includes(filters.company.toLowerCase())) &&
+                            (!filters.platform || job.platform?.toLowerCase().includes(filters.platform.toLowerCase())) &&
+                            (!filters.jobType || job.jobType === filters.jobType) &&
+                            (!filters.status || job.status === filters.status) &&
+                            (!filters.city || job.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
+                            (!filters.country || job.country?.toLowerCase().includes(filters.country.toLowerCase()))
+                        )
+                            ?.sort((a: Job, b: Job) => {
+                                const valA = a[sortKey as keyof Job];
+                                const valB = b[sortKey as keyof Job];
+
+                                if (valA == null) return 1;
+                                if (valB == null) return -1;
+
+                                if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+                                if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+                                return 0;
+
+                            })
+                            ?.map((job: any, index: number) => (
+                                <tr key={job._id}>
+                                    {columns.map((col) => (
+                                        <td key={col.key} className="border px-4 py-2">
+                                            {col.render(job, index)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
             </div>
