@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Job } from "../../types/job";
@@ -9,6 +10,7 @@ import { Job } from "../../types/job";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function JobsDashboard() {
+    const router = useRouter();
     const { data: jobs, mutate } = useSWR("/api/jobs", fetcher);
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [filters, setFilters] = useState({
@@ -28,13 +30,6 @@ export default function JobsDashboard() {
         'Country', 'City', 'Salary Offered', 'Salary Expected', 'Currency',
         'Status', 'Applied Date', 'Days Since Applied', 'Active', 'Delete'
     ];
-
-    const calculateDaysSince = (date: string) => {
-        const applied = new Date(date);
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - applied.getTime());
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    };
 
     const columns = [
         { key: 'srNo', render: (_: any, index: number) => index + 1 },
@@ -119,6 +114,10 @@ export default function JobsDashboard() {
         setLoadingId(null);
     };
 
+    const handleRowDoubleClick = (id: string) => {
+        router.push(`/dashboard/jobs/${id}`);
+    };
+
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -134,11 +133,11 @@ export default function JobsDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                 <input type="text" placeholder="Company" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, company: e.target.value })} />
                 <input type="text" placeholder="Platform" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, platform: e.target.value })} />
-                <select className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
+                <select className="border p-2 rounded shadow-sm bg-black text-white" onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
                     <option value="">All Types</option>
                     {["Remote", "Onsite", "Hybrid", "Contract", "Freelance", "Part-time", "Full-time"].map(type => <option key={type}>{type}</option>)}
                 </select>
-                <select className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+                <select className="border p-2 rounded shadow-sm bg-black text-white" onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
                     <option value="">All Statuses</option>
                     {["Pending", "Interviewed", "Offered", "Rejected by Company", "Rejected by Me"].map(status => <option key={status}>{status}</option>)}
                 </select>
@@ -147,10 +146,11 @@ export default function JobsDashboard() {
             {/* Scrollable table wrapper */}
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                 <table className="table-auto min-w-[2200px] border text-sm whitespace-nowrap">
-                    <thead className="bg-gray-100 text-black">
-                        <tr>
+                    <thead role="rowgroup" className="bg-gray-100 text-black">
+                        <tr role="row">
                             {tableHeaders.map((header, i) => (
                                 <th
+                                    role="columnheader"
                                     key={header}
                                     className="border px-4 py-2 cursor-pointer"
                                     onClick={() => {
@@ -169,7 +169,7 @@ export default function JobsDashboard() {
                             ))}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                         {jobs?.filter((job: Job) =>
                             (!filters.company || job.company?.toLowerCase().includes(filters.company.toLowerCase())) &&
                             (!filters.platform || job.platform?.toLowerCase().includes(filters.platform.toLowerCase())) &&
@@ -191,9 +191,19 @@ export default function JobsDashboard() {
 
                             })
                             ?.map((job: any, index: number) => (
-                                <tr key={job._id}>
+                                <tr
+                                    role="row"
+                                    key={job._id}
+                                    tabIndex={0}
+                                    onDoubleClick={() => handleRowDoubleClick(job._id)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            router.push(`/dashboard/jobs/${job._id}`);
+                                        }
+                                    }}
+                                    className="cursor-pointer hover:bg-blue-600 transition-colors">
                                     {columns.map((col) => (
-                                        <td key={col.key} className="border px-4 py-2">
+                                        <td role="cell" key={col.key} className="border px-4 py-2">
                                             {col.render(job, index)}
                                         </td>
                                     ))}
