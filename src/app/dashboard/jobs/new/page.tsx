@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import BackButton from '@/components/BackButton';
 
 export default function NewJobPage() {
     const router = useRouter();
@@ -82,6 +83,7 @@ export default function NewJobPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
+            <BackButton />
             <h1 className="text-2xl font-bold mb-4">➕ Add New Job Application</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

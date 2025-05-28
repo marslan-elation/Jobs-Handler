@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { Job } from "../../types/job";
+import { Job } from "@/types/job";
+import BackButton from '@/components/BackButton';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -120,6 +121,7 @@ export default function JobsDashboard() {
 
     return (
         <div className="p-6">
+            <BackButton />
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">📋 Job Applications</h1>
                 <Link

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Job } from '../../../types/job';
+import { Job } from '@/types/job';
+import BackButton from '@/components/BackButton';
 
 const JobDetailPage = () => {
     const params = useParams();
@@ -24,6 +25,7 @@ const JobDetailPage = () => {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
+            <BackButton />
             <h1 className="text-2xl font-bold mb-4">{job.jobTitle}</h1>
             <p><strong>Company:</strong> {job.company}</p>
             <p><strong>Platform:</strong> {job.platform}</p>
