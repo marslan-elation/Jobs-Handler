@@ -7,10 +7,13 @@ import { SignJWT } from "jose";
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const { email, password } = await req.json(); // 'email' can be email or username
   await connectToDatabase();
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    $or: [{ email }, { username: email }]
+  });
+
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
@@ -30,7 +33,7 @@ export async function POST(req: NextRequest) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60, // 1 hour
+    maxAge: 60 * 60,
     path: "/",
   });
 

@@ -32,8 +32,8 @@ export default function SignIn() {
       <h1 className="text-2xl font-bold text-center">Sign In</h1>
       {error && <p className="text-red-500">{error}</p>}
       <input
-        type="email"
-        placeholder="Email"
+        type="text"
+        placeholder="Username or Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="w-full p-2 border rounded"
