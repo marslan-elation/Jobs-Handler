@@ -7,6 +7,7 @@ import { Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Job } from "@/types/job";
 import BackButton from '@/components/BackButton';
+import { FaSortDown, FaSortUp } from "react-icons/fa";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -27,47 +28,43 @@ export default function JobsDashboard() {
 
     const tableHeaders = [
         'Sr. No', 'Company', 'Platform', 'Job Type', 'Job Link', 'Job Title',
-        'Shared Experience', 'Resume (Drive Link)',
-        'Country', 'City', 'Salary Offered', 'Salary Expected', 'Currency',
+        'Resume (Drive Link)', 'Salary Offered', 'Salary Expected', 'Currency',
         'Status', 'Applied Date', 'Days Since Applied', 'Active', 'Delete'
     ];
 
     const columns = [
         { key: 'srNo', render: (_: any, index: number) => index + 1 },
-        { key: 'company', render: (job: any) => job.company },
-        { key: 'platform', render: (job: any) => job.platform },
-        { key: 'jobType', render: (job: any) => job.jobType },
+        { key: 'company', render: (job: Job) => job.company },
+        { key: 'platform', render: (job: Job) => job.platform },
+        { key: 'jobType', render: (job: Job) => job.jobType },
         {
             key: 'jobLink',
-            render: (job: any) => (
+            render: (job: Job) => (
                 <Link href={job.jobLink} target="_blank">
                     <ExternalLink className="inline w-4 h-4 text-blue-500" />
                 </Link>
             ),
         },
-        { key: 'jobTitle', render: (job: any) => job.jobTitle },
-        { key: 'sharedExperience', render: (job: any) => job.sharedExperience },
+        { key: 'jobTitle', render: (job: Job) => job.jobTitle },
         {
             key: 'resumeLink',
-            render: (job: any) => (
+            render: (job: Job) => (
                 <Link href={job.resumeLink} target="_blank">
                     <ExternalLink className="inline w-4 h-4 text-green-600" />
                 </Link>
             ),
         },
-        { key: 'country', render: (job: any) => job.country },
-        { key: 'city', render: (job: any) => job.city },
-        { key: 'salaryOffered', render: (job: any) => `${job.salaryOffered} ${job.currency}` },
-        { key: 'salaryExpected', render: (job: any) => `${job.salaryExpected} ${job.currency}` },
-        { key: 'currency', render: (job: any) => job.currency },
-        { key: 'status', render: (job: any) => job.status },
+        { key: 'salaryOffered', render: (job: Job) => `${job.salaryOffered} ${job.currency}` },
+        { key: 'salaryExpected', render: (job: Job) => `${job.salaryExpected} ${job.currency}` },
+        { key: 'currency', render: (job: Job) => job.currency },
+        { key: 'status', render: (job: Job) => job.status },
         {
             key: 'appliedDate',
-            render: (job: any) => new Date(job.appliedDate).toLocaleDateString(),
+            render: (job: Job) => new Date(job.appliedDate).toLocaleDateString(),
         },
         {
             key: 'daysSinceApplied',
-            render: (job: any) => {
+            render: (job: Job) => {
                 const applied = new Date(job.appliedDate);
                 const today = new Date();
                 const diff = Math.floor((today.getTime() - applied.getTime()) / (1000 * 60 * 60 * 24));
@@ -76,7 +73,7 @@ export default function JobsDashboard() {
         },
         {
             key: 'isActive',
-            render: (job: any) => (
+            render: (job: Job) => (
                 <input
                     type="checkbox"
                     className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
@@ -88,7 +85,7 @@ export default function JobsDashboard() {
         },
         {
             key: 'delete',
-            render: (job: any) => (
+            render: (job: Job) => (
                 <button
                     onClick={() => deleteJob(job._id)}
                     className="text-red-600 hover:text-red-800"
@@ -121,9 +118,11 @@ export default function JobsDashboard() {
 
     return (
         <div className="p-6">
-            <BackButton />
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">📋 Job Applications</h1>
+                <span className="flex items-center gap-2">
+                    <BackButton fallback="/dashboard" />
+                    <h1 className="text-2xl font-bold">Job Applications</h1>
+                </span>
                 <Link
                     href="/dashboard/jobs/new"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -131,7 +130,6 @@ export default function JobsDashboard() {
                     Add Job
                 </Link>
             </div>
-
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                 <input type="text" placeholder="Company" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, company: e.target.value })} />
                 <input type="text" placeholder="Platform" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, platform: e.target.value })} />
@@ -156,7 +154,10 @@ export default function JobsDashboard() {
                                     key={header}
                                     className="border px-4 py-2 cursor-pointer"
                                     onClick={() => {
-                                        const key = columns[i].key;
+                                        let key = columns[i].key;
+                                        if (key === 'daysSinceApplied') {
+                                            key = 'appliedDate';
+                                        }
                                         if (sortKey === key) {
                                             setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                                         } else {
@@ -165,8 +166,12 @@ export default function JobsDashboard() {
                                         }
                                     }}
                                 >
-                                    {header}
-                                    {sortKey === columns[i].key && (sortOrder === "asc" ? " 🔼" : " 🔽")}
+                                    <span className="flex items-center gap-1">
+                                        {header}
+                                        {(columns[i].key === sortKey ||
+                                            (columns[i].key === 'daysSinceApplied' && sortKey === 'appliedDate')) &&
+                                            (sortOrder === "asc" ? <FaSortUp /> : <FaSortDown />)}
+                                    </span>
                                 </th>
                             ))}
                         </tr>
@@ -176,9 +181,7 @@ export default function JobsDashboard() {
                             (!filters.company || job.company?.toLowerCase().includes(filters.company.toLowerCase())) &&
                             (!filters.platform || job.platform?.toLowerCase().includes(filters.platform.toLowerCase())) &&
                             (!filters.jobType || job.jobType === filters.jobType) &&
-                            (!filters.status || job.status === filters.status) &&
-                            (!filters.city || job.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
-                            (!filters.country || job.country?.toLowerCase().includes(filters.country.toLowerCase()))
+                            (!filters.status || job.status === filters.status)
                         )
                             ?.sort((a: Job, b: Job) => {
                                 const valA = a[sortKey as keyof Job];
@@ -192,7 +195,7 @@ export default function JobsDashboard() {
                                 return 0;
 
                             })
-                            ?.map((job: any, index: number) => (
+                            ?.map((job: Job, index: number) => (
                                 <tr
                                     role="row"
                                     key={job._id}

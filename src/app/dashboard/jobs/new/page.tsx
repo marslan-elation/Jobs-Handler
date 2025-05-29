@@ -83,8 +83,10 @@ export default function NewJobPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            <BackButton />
-            <h1 className="text-2xl font-bold mb-4">➕ Add New Job Application</h1>
+            <span className="flex items-center gap-2 mb-4">
+                <BackButton fallback="/dashboard/jobs" />
+                <h1 className="text-2xl font-bold">Add New Job Application</h1>
+            </span>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input label="Company Name (optional)" name="company" value={form.company} onChange={handleChange} />

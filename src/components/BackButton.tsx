@@ -1,12 +1,32 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { IoIosArrowRoundBack } from 'react-icons/io';
 
-export default function BackButton() {
+type BackButtonProps = {
+    fallback?: string;
+};
+
+export default function BackButton({ fallback = '/dashboard/jobs' }: BackButtonProps) {
     const router = useRouter();
-    return (
+    const pathname = usePathname();
 
-        <button onClick={() => router.back()} className="mb-4  hover:underline flex items-center">
-            ← Back
+    const handleClick = () => {
+        // Check if it's a new tab or direct navigation (e.g. /dashboard/jobs/new directly)
+        const hasBrowserHistory = document.referrer && !document.referrer.includes(pathname);
+
+        if (hasBrowserHistory) {
+            router.back();
+        } else {
+            router.push(fallback);
+        }
+    };
+
+    return (
+        <button
+            onClick={handleClick}
+            className="hover:underline flex items-center"
+        >
+            <IoIosArrowRoundBack className="text-xl" />
         </button>
     );
 }
