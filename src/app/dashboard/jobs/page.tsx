@@ -25,6 +25,7 @@ export default function JobsDashboard() {
     });
     const [sortKey, setSortKey] = useState<keyof Job>("appliedDate");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const [showAll, setShowAll] = useState(false);
 
     const tableHeaders = [
         'Sr. No', 'Company', 'Platform', 'Job Type', 'Job Link', 'Job Title',
@@ -123,12 +124,20 @@ export default function JobsDashboard() {
                     <BackButton fallback="/dashboard" />
                     <h1 className="text-2xl font-bold">Job Applications</h1>
                 </span>
-                <Link
-                    href="/dashboard/jobs/new"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                    Add Job
-                </Link>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowAll(prev => !prev)}
+                        className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                        {showAll ? "Show Only Active" : "Show All"}
+                    </button>
+                    <Link
+                        href="/dashboard/jobs/new"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                        Add Job
+                    </Link>
+                </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                 <input type="text" placeholder="Company" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, company: e.target.value })} />
@@ -178,6 +187,7 @@ export default function JobsDashboard() {
                     </thead>
                     <tbody role="rowgroup">
                         {jobs?.filter((job: Job) =>
+                            (!showAll ? job.isActive : true) &&
                             (!filters.company || job.company?.toLowerCase().includes(filters.company.toLowerCase())) &&
                             (!filters.platform || job.platform?.toLowerCase().includes(filters.platform.toLowerCase())) &&
                             (!filters.jobType || job.jobType === filters.jobType) &&
