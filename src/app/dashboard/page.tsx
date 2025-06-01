@@ -2,6 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 
+import { RiContractFill } from "react-icons/ri";
+import { FaFileContract } from "react-icons/fa";
+import { IoSettings } from "react-icons/io5";
+
 export default function DashboardLayout() {
     const router = useRouter();
 
@@ -23,13 +27,25 @@ export default function DashboardLayout() {
                             onClick={() => router.push('/dashboard/jobs')}
                             className="w-full text-left px-4 py-2 rounded hover:bg-gray-800 transition"
                         >
-                            📄 Applied Jobs
+                            <span className='flex ite gap-2'>
+                                <RiContractFill />Applied Jobs
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => router.push('/dashboard/outreach')}
+                            className="w-full text-left px-4 py-2 rounded hover:bg-gray-800 transition"
+                        >
+                            <span className='flex ite gap-2'>
+                                <FaFileContract />Applied Outreach
+                            </span>
                         </button>
                         <button
                             onClick={() => alert('Settings not implemented yet')}
                             className="w-full text-left px-4 py-2 rounded hover:bg-gray-800 transition mt-4"
                         >
-                            ⚙️ Settings
+                            <span className='flex ite gap-2'>
+                                <IoSettings />Settings
+                            </span>
                         </button>
                     </nav>
                 </div>
