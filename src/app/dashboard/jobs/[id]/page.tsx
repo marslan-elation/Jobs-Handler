@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Job } from '@/types/job';
 import BackButton from '@/components/BackButton';
 import { FaLink } from "react-icons/fa";
@@ -9,7 +9,6 @@ import { ImProfile } from "react-icons/im";
 
 const JobDetailPage = () => {
     const params = useParams();
-    const router = useRouter();
     const id = params.id as string;
     const [job, setJob] = useState<Job | null>(null);
     const [updating, setUpdating] = useState(false);
@@ -23,7 +22,7 @@ const JobDetailPage = () => {
         }
     }, [id]);
 
-    const updateField = async (field: string, value: any) => {
+    const updateField = async (field: string, value: Job[keyof Job]) => {
         if (!job) return;
         setUpdating(true);
         try {

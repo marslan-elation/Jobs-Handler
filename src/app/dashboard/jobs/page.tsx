@@ -34,7 +34,7 @@ export default function JobsDashboard() {
     ];
 
     const columns = [
-        { key: 'srNo', render: (_: any, index: number) => index + 1 },
+        { key: 'srNo', render: (_: Job, index: number) => index + 1 },
         { key: 'company', render: (job: Job) => job.company },
         { key: 'platform', render: (job: Job) => job.platform },
         { key: 'jobType', render: (job: Job) => job.jobType },

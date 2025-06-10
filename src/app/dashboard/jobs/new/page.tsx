@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { InputProps, TextareaProps, SelectProps } from "@/app/types/components";
 import BackButton from '@/components/BackButton';
 
 export default function NewJobPage() {
@@ -151,7 +152,7 @@ export default function NewJobPage() {
 }
 
 // Reusable Input Component
-function Input({ label, name, value, onChange, type = "text", required = false }: any) {
+function Input({ label, name, value, onChange, type = "text", required = false }: InputProps) {
     return (
         <div>
             <label className="block text-sm font-medium mb-1" htmlFor={name}>{label}</label>
@@ -169,7 +170,7 @@ function Input({ label, name, value, onChange, type = "text", required = false }
 }
 
 // Reusable Textarea Component
-function Textarea({ label, name, value, onChange, required = false }: any) {
+function Textarea({ label, name, value, onChange, required = false }: TextareaProps) {
     return (
         <div>
             <label className="block text-sm font-medium mb-1" htmlFor={name}>{label}</label>
@@ -187,7 +188,7 @@ function Textarea({ label, name, value, onChange, required = false }: any) {
 }
 
 // Reusable Select Component
-function Select({ label, name, value, onChange, options }: any) {
+function Select({ label, name, value, onChange, options }: SelectProps) {
     return (
         <div>
             <label className="block text-sm font-medium mb-1" htmlFor={name}>{label}</label>
