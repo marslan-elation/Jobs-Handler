@@ -9,6 +9,14 @@ export default function NewJobPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [currencies, setCurrencies] = useState<{ [key: string]: string }>({});
+    const [errors, setErrors] = useState({
+        salaryExpected: "",
+        salaryOffered: "",
+    });
+    const [errorModal, setErrorModal] = useState<{ message: string; visible: boolean }>({
+        message: "",
+        visible: false,
+    });
 
     useEffect(() => {
         const fetchCurrencies = async () => {
@@ -49,6 +57,20 @@ export default function NewJobPage() {
     ) => {
         const { name, value, type } = e.target;
 
+        // Salary validation & formatting
+        if (name === "salaryExpected" || name === "salaryOffered") {
+            const raw = value.replace(/,/g, "");
+            if (raw === "" || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                // Valid number, format with commas
+                const formatted = Number(raw).toLocaleString();
+                setForm({ ...form, [name]: formatted });
+                setErrors({ ...errors, [name]: "" });
+            } else {
+                setErrors({ ...errors, [name]: "Please enter a valid number" });
+            }
+            return;
+        }
+
         if (type === "checkbox" && e.target instanceof HTMLInputElement) {
             setForm({ ...form, [name]: e.target.checked });
         } else {
@@ -73,13 +95,50 @@ export default function NewJobPage() {
             }
         }
 
+        if (errors.salaryExpected || errors.salaryOffered) {
+            alert("Please fix the salary field errors before submitting.");
+            return;
+        }
+
+        const cleanedForm = {
+            ...form,
+            salaryExpected: Number(form.salaryExpected.replace(/,/g, "")),
+            salaryOffered: Number(form.salaryOffered.replace(/,/g, "")),
+        };
+
         setLoading(true);
-        await fetch("/api/jobs", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-        });
-        router.push("/dashboard/jobs");
+        try {
+            const res = await fetch("/api/jobs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cleanedForm),
+            });
+
+            if (!res.ok) {
+                let message = "Something went wrong. Please try again.";
+
+                try {
+                    const data = await res.json();
+                    message = data?.message || message;
+                } catch (jsonError) {
+                    message = "Server did not return a proper error message.";
+                }
+
+                throw new Error(message);
+            }
+
+            router.push("/dashboard/jobs");
+        } catch (error: any) {
+            setErrorModal({
+                message:
+                    error.message?.includes("validation")
+                        ? "Please check your form — some values might be in the wrong format."
+                        : error.message || "Something went wrong. Please try again.",
+                visible: true,
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -99,9 +158,12 @@ export default function NewJobPage() {
                     <Input label="City" name="city" value={form.city} onChange={handleChange} required />
                     <Input label="Country" name="country" value={form.country} onChange={handleChange} required />
 
-                    <Input label="Salary Offered" name="salaryOffered" value={form.salaryOffered} onChange={handleChange} required />
-                    <Input label="Salary Expected" name="salaryExpected" value={form.salaryExpected} onChange={handleChange} required />
-
+                    <div><Input label="Salary Offered" name="salaryOffered" value={form.salaryOffered} onChange={handleChange} required />
+                        {errors.salaryOffered && <p className="text-red-500 text-sm mt-1">{errors.salaryOffered}</p>}
+                    </div>
+                    <div><Input label="Salary Expected" name="salaryExpected" value={form.salaryExpected} onChange={handleChange} required />
+                        {errors.salaryExpected && <p className="text-red-500 text-sm mt-1">{errors.salaryExpected}</p>}
+                    </div>
                     <div>
                         <label className="block text-sm font-medium mb-1" htmlFor="currency">Currency</label>
                         <select
@@ -147,6 +209,21 @@ export default function NewJobPage() {
                     {loading ? "Submitting..." : "Add Job"}
                 </button>
             </form>
+
+            {errorModal.visible && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-black rounded-lg p-6 shadow-lg max-w-md w-full border border-white">
+                        <h2 className="text-white text-lg font-semibold mb-2">Error</h2>
+                        <p className="text-sm text-white mb-4">{errorModal.message}</p>
+                        <button
+                            onClick={() => setErrorModal({ ...errorModal, visible: false })}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

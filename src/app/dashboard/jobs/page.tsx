@@ -55,8 +55,8 @@ export default function JobsDashboard() {
                 </Link>
             ),
         },
-        { key: 'salaryOffered', render: (job: Job) => `${job.salaryOffered} ${job.currency}` },
-        { key: 'salaryExpected', render: (job: Job) => `${job.salaryExpected} ${job.currency}` },
+        { key: 'salaryOffered', render: (job: Job) => `${Number(job.salaryOffered).toLocaleString()} ${job.currency}` },
+        { key: 'salaryExpected', render: (job: Job) => `${Number(job.salaryExpected).toLocaleString()} ${job.currency}` },
         { key: 'currency', render: (job: Job) => job.currency },
         { key: 'status', render: (job: Job) => job.status },
         {
