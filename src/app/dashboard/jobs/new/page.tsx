@@ -84,13 +84,20 @@ export default function NewJobPage() {
         e.preventDefault();
 
         const requiredFields = [
-            "jobTitle", "platform", "jobType", "locationType", "jobLink", "sharedExperience",
+            "company", "jobTitle", "platform", "jobType", "locationType", "jobLink", "sharedExperience",
             "actualExperience", "resumeLink", "appliedDate", "city", "country",
             "salaryOffered", "salaryExpected", "currency", "status"
         ];
 
+        if (form.locationType === 'Remote') {
+            const index = requiredFields.indexOf("city", 0);
+            if (index > -1) {
+                requiredFields.splice(index, 1);
+            }
+        }
+
         for (const field of requiredFields) {
-            if (!form[field as keyof typeof form]) {
+            if (!form[field as keyof typeof form]?.toString().trim()) {
                 alert(`Please fill in the required field: ${field}`);
                 return;
             }
@@ -121,7 +128,7 @@ export default function NewJobPage() {
                 try {
                     const data = await res.json();
                     message = data?.message || message;
-                } catch (jsonError) {
+                } catch {
                     message = "Server did not return a proper error message.";
                 }
 
@@ -129,12 +136,17 @@ export default function NewJobPage() {
             }
 
             router.push("/dashboard/jobs");
-        } catch (error: any) {
+        } catch (error: unknown) {
+            let message = "Something went wrong. Please try again.";
+
+            if (error instanceof Error) {
+                message = error.message?.includes("validation")
+                    ? "Please check your form — some values might be in the wrong format."
+                    : error.message || message;
+            }
+
             setErrorModal({
-                message:
-                    error.message?.includes("validation")
-                        ? "Please check your form — some values might be in the wrong format."
-                        : error.message || "Something went wrong. Please try again.",
+                message,
                 visible: true,
             });
         } finally {
@@ -150,7 +162,7 @@ export default function NewJobPage() {
             </span>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Input label="Company Name (optional)" name="company" value={form.company} onChange={handleChange} />
+                    <Input label="Company Name" name="company" value={form.company} onChange={handleChange} required />
                     <div className="md:col-span-2">
                         <Input label="Job Title" name="jobTitle" value={form.jobTitle} onChange={handleChange} required />
                     </div>
@@ -184,7 +196,7 @@ export default function NewJobPage() {
                     <div><Input label="Salary Expected" name="salaryExpected" value={form.salaryExpected} onChange={handleChange} required />
                         {errors.salaryExpected && <p className="text-red-500 text-sm mt-1">{errors.salaryExpected}</p>}
                     </div>
-                    <Input label="City" name="city" value={form.city} onChange={handleChange} required />
+                    <Input label="City" name="city" value={form.city} onChange={handleChange} required={form.locationType !== "Remote"} />
                     <Input label="Country" name="country" value={form.country} onChange={handleChange} required />
 
                     <Input label="Applied Date" name="appliedDate" type="date" value={form.appliedDate} onChange={handleChange} required />

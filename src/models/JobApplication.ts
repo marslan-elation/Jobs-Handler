@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { JobApplication } from "@/app/types/job";
 
 const JobApplicationSchema = new mongoose.Schema(
     {
-        company: { type: String }, // optional
+        company: { type: String, required: true },
         platform: { type: String, required: true },
         jobType: { type: String, required: true },
         locationType: { type: String, require: true },
@@ -11,7 +12,13 @@ const JobApplicationSchema = new mongoose.Schema(
         sharedExperience: { type: String, required: true },
         actualExperience: { type: String, required: true },
         country: { type: String, required: true },
-        city: { type: String, required: true },
+        city:
+        {
+            type: String,
+            required: function (this: JobApplication) {
+                return this.locationType !== 'Remote';
+            },
+        },
         salaryOffered: { type: Number, required: true },
         salaryExpected: { type: Number, required: true },
         currency: { type: String, required: true },

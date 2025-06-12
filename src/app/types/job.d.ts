@@ -20,3 +20,8 @@ export interface Job {
     isSalartPerAnnum: boolean;
     isActive: boolean;
 }
+
+export interface JobApplication extends Document {
+    locationType: string;
+    city?: string;
+}
