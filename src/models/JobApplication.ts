@@ -26,6 +26,7 @@ const JobApplicationSchema = new mongoose.Schema(
         resumeLink: { type: String, required: true },
         appliedDate: { type: Date, required: true },
         coverLetter: { type: String }, // optional
+        additionalInfo: { type: String },
         isSalartPerAnnum: { type: Boolean, default: true },
         isActive: { type: Boolean, default: true },
     },

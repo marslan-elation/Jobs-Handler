@@ -1,6 +1,6 @@
 export interface Job {
     _id: string;
-    company?: string;
+    company: string;
     platform: string;
     jobType: string;
     locationType: string;
@@ -9,7 +9,7 @@ export interface Job {
     sharedExperience: string;
     actualExperience: string;
     country: string;
-    city: string;
+    city?: string;
     salaryOffered: number;
     salaryExpected: number;
     currency: string;
@@ -17,6 +17,7 @@ export interface Job {
     resumeLink: string;
     appliedDate: string; // string format for easy handling in form
     coverLetter?: string;
+    additionalInfo?: string;
     isSalartPerAnnum: boolean;
     isActive: boolean;
 }

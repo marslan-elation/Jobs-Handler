@@ -135,6 +135,13 @@ const JobDetailPage = () => {
                     <h2 className="text-lg font-semibold">Cover Letter</h2>
                     <p>{job.coverLetter}</p>
                 </div>}
+
+            {/* Additional Information */}
+            {job.additionalInfo &&
+                <div className=" shadow rounded-lg p-6 border space-y-2">
+                    <h2 className="text-lg font-semibold">Additional Information</h2>
+                    <p>{job.additionalInfo}</p>
+                </div>}
         </div>
     );
 };
