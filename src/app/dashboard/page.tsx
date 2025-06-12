@@ -26,7 +26,7 @@ export default function DashboardLayout() {
                             📄 Applied Jobs
                         </button>
                         <button
-                            onClick={() => alert('Settings not implemented yet')}
+                            onClick={() => router.push('/dashboard/settings')}
                             className="w-full text-left px-4 py-2 rounded hover:bg-gray-800 transition mt-4"
                         >
                             ⚙️ Settings
