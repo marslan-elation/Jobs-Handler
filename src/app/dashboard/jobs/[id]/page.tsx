@@ -73,6 +73,7 @@ const JobDetailPage = () => {
                 <Info label="Company" value={job.company} />
                 <Info label="Platform" value={job.platform} />
                 <Info label="Job Type" value={job.jobType} />
+                <Info label="Location Type" value={job.locationType} />
                 <Info label="Location" value={`${job.city}, ${job.country}`} />
                 <Info label="Applied Date" value={new Date(job.appliedDate).toLocaleDateString()} />
                 <Info label="Salary Offered" value={`${job.salaryOffered} ${job.currency}`} />

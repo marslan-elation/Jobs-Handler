@@ -3,6 +3,7 @@ export interface Job {
     company?: string;
     platform: string;
     jobType: string;
+    locationType: string;
     jobLink: string;
     jobTitle: string;
     sharedExperience: string;

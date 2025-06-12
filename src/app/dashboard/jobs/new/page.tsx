@@ -32,7 +32,8 @@ export default function NewJobPage() {
         company: "",
         jobTitle: "",
         platform: "",
-        jobType: "Remote",
+        jobType: "Full-time",
+        locationType: "Remote",
         jobLink: "",
         sharedExperience: "",
         actualExperience: "",
@@ -49,9 +50,9 @@ export default function NewJobPage() {
         isActive: true,
     });
 
-    const jobTypes = ['Remote', 'Onsite', 'Hybrid', 'Contract', 'Freelance', 'Part-time', 'Full-time'];
+    const locationType = ['Remote', 'Onsite', 'Hybrid'];
+    const jobTypes = ['Contract', 'Freelance', 'Part-time', 'Full-time'];
     const applicationStatus = ['Pending', 'Interviewed', 'Offered', 'Rejected by Company', 'Rejected by Me'];
-
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
@@ -83,7 +84,7 @@ export default function NewJobPage() {
         e.preventDefault();
 
         const requiredFields = [
-            "jobTitle", "platform", "jobType", "jobLink", "sharedExperience",
+            "jobTitle", "platform", "jobType", "locationType", "jobLink", "sharedExperience",
             "actualExperience", "resumeLink", "appliedDate", "city", "country",
             "salaryOffered", "salaryExpected", "currency", "status"
         ];
@@ -148,22 +149,16 @@ export default function NewJobPage() {
                 <h1 className="text-2xl font-bold">Add New Job Application</h1>
             </span>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input label="Company Name (optional)" name="company" value={form.company} onChange={handleChange} />
-                    <Input label="Job Title" name="jobTitle" value={form.jobTitle} onChange={handleChange} required />
+                    <div className="md:col-span-2">
+                        <Input label="Job Title" name="jobTitle" value={form.jobTitle} onChange={handleChange} required />
+                    </div>
 
                     <Input label="Platform Used" name="platform" value={form.platform} onChange={handleChange} required />
                     <Select label="Job Type" name="jobType" value={form.jobType} onChange={handleChange} options={jobTypes} />
+                    <Select label="Location Type" name="locationType" value={form.locationType} onChange={handleChange} options={locationType} />
 
-                    <Input label="City" name="city" value={form.city} onChange={handleChange} required />
-                    <Input label="Country" name="country" value={form.country} onChange={handleChange} required />
-
-                    <div><Input label="Salary Offered" name="salaryOffered" value={form.salaryOffered} onChange={handleChange} required />
-                        {errors.salaryOffered && <p className="text-red-500 text-sm mt-1">{errors.salaryOffered}</p>}
-                    </div>
-                    <div><Input label="Salary Expected" name="salaryExpected" value={form.salaryExpected} onChange={handleChange} required />
-                        {errors.salaryExpected && <p className="text-red-500 text-sm mt-1">{errors.salaryExpected}</p>}
-                    </div>
                     <div>
                         <label className="block text-sm font-medium mb-1" htmlFor="currency">Currency</label>
                         <select
@@ -182,6 +177,15 @@ export default function NewJobPage() {
                             ))}
                         </select>
                     </div>
+
+                    <div><Input label="Salary Offered" name="salaryOffered" value={form.salaryOffered} onChange={handleChange} required />
+                        {errors.salaryOffered && <p className="text-red-500 text-sm mt-1">{errors.salaryOffered}</p>}
+                    </div>
+                    <div><Input label="Salary Expected" name="salaryExpected" value={form.salaryExpected} onChange={handleChange} required />
+                        {errors.salaryExpected && <p className="text-red-500 text-sm mt-1">{errors.salaryExpected}</p>}
+                    </div>
+                    <Input label="City" name="city" value={form.city} onChange={handleChange} required />
+                    <Input label="Country" name="country" value={form.country} onChange={handleChange} required />
 
                     <Input label="Applied Date" name="appliedDate" type="date" value={form.appliedDate} onChange={handleChange} required />
                 </div>
