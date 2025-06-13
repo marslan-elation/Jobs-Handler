@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ToggleSwitch from "./ToggleSwitch";
+import ConfirmModal from "./ConfirmModal"; // 👈 import
 
 export default function JobApplicationSettings() {
     const [currencies, setCurrencies] = useState<{ [key: string]: string }>({});
@@ -9,6 +11,7 @@ export default function JobApplicationSettings() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         const fetchInitialSettings = async () => {
@@ -67,14 +70,26 @@ export default function JobApplicationSettings() {
 
     const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = e.target.value;
+
+        if (!selected && convertCurrency) {
+            // prompt user
+            setShowConfirm(true);
+            return;
+        }
+
         setLocalCurrency(selected);
         saveSettings(selected, convertCurrency);
     };
 
-    const handleConvertToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const checked = e.target.checked;
-        setConvertCurrency(checked);
-        saveSettings(localCurrency, checked);
+    const confirmCurrencyClear = () => {
+        setLocalCurrency("");
+        setConvertCurrency(false);
+        setShowConfirm(false);
+        saveSettings("", false);
+    };
+
+    const cancelCurrencyClear = () => {
+        setShowConfirm(false);
     };
 
     return (
@@ -105,20 +120,28 @@ export default function JobApplicationSettings() {
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="convertCurrency"
-                            checked={convertCurrency}
-                            onChange={handleConvertToggle}
-                            disabled={!localCurrency}
-                        />
-                        <label htmlFor="convertCurrency" className="text-sm">Convert all salaries to selected currency</label>
-                    </div>
+                    <ToggleSwitch
+                        label="Convert all salaries to selected currency"
+                        checked={convertCurrency}
+                        onChange={(checked) => {
+                            setConvertCurrency(checked);
+                            saveSettings(localCurrency, checked);
+                        }}
+                        disabled={!localCurrency}
+                    />
 
                     {saving && <p className="text-sm text-gray-400">Saving settings...</p>}
                 </>
             )}
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showConfirm}
+                title="Clear Currency?"
+                message="You have enabled currency conversion. Do you want to clear the currency and disable conversion?"
+                onConfirm={confirmCurrencyClear}
+                onCancel={cancelCurrencyClear}
+            />
         </div>
     );
 }
