@@ -23,34 +23,35 @@ import { LexicalEditorProps } from '@/app/types/RichTextInterfaces';
 const theme = {
     ltr: 'ltr',
     rtl: 'rtl',
-    placeholder: 'editor-placeholder',
-    paragraph: 'editor-paragraph',
-    quote: 'editor-quote',
+    placeholder: 'text-gray-500 absolute top-4 left-3 text-sm select-none pointer-events-none',
+    paragraph: 'mb-4 relative',
     heading: {
-        h1: 'editor-heading-h1',
-        h2: 'editor-heading-h2',
-        h3: 'editor-heading-h3',
-        h4: 'editor-heading-h4',
-        h5: 'editor-heading-h5',
-        h6: 'editor-heading-h6',
+        h1: 'text-2xl font-extrabold mb-5',
+        h2: 'text-xl font-bold mb-4',
+        h3: 'text-lg font-semibold mb-3.5',
+        h4: 'text-base font-semibold mb-3',
+        h5: 'text-sm font-semibold mb-2.5',
+        h6: 'text-xs font-semibold mb-2',
     },
     list: {
         nested: {
-            listitem: 'editor-nested-listitem',
+            listitem: 'list-none',
         },
-        ol: 'editor-list-ol',
-        ul: 'editor-list-ul',
-        listitem: 'editor-listitem',
+        ol: 'p-0 m-0 ml-4',
+        ul: 'p-0 m-0 ml-4',
+        listitem: 'my-2 mx-8',
     },
-    image: 'editor-image',
-    link: 'editor-link',
     text: {
-        bold: 'editor-text-bold',
-        italic: 'editor-text-italic',
-        underline: 'editor-text-underline',
-        strikethrough: 'editor-text-strikethrough',
-        underlineStrikethrough: 'editor-text-underlineStrikethrough',
+        bold: 'font-bold',
+        italic: 'italic',
+        underline: 'underline',
+        strikethrough: 'line-through',
+        underlineStrikethrough: 'underline line-through',
     },
+    quote: 'm-0 ml-5 mb-2.5 text-sm text-gray-600 border-l-4 border-gray-300 pl-4',
+    code: 'bg-gray-100 px-1 font-mono text-[94%]',
+    codeBlock: 'bg-gray-100 font-mono block p-2 leading-relaxed text-sm my-2 tab-size-2 overflow-x-auto relative mt-3 mb-3 first:mt-0 last:mb-0 after:content-[""] after:absolute after:inset-0 after:pointer-events-none after:rounded after:border after:border-gray-200',
+    link: 'text-blue-600 no-underline',
 };
 
 const initialConfig = {
@@ -115,7 +116,6 @@ function ToolbarPlugin() {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
     };
 
-    // Node transforms for block types
     const setParagraph = () => {
         editor.update(() => {
             const selection = $getSelection();
@@ -127,6 +127,7 @@ function ToolbarPlugin() {
             }
         });
     };
+
     const setHeading = (tag: 'h1' | 'h2') => {
         editor.update(() => {
             const selection = $getSelection();
@@ -138,6 +139,7 @@ function ToolbarPlugin() {
             }
         });
     };
+
     const setQuote = () => {
         editor.update(() => {
             const selection = $getSelection();
@@ -149,6 +151,7 @@ function ToolbarPlugin() {
             }
         });
     };
+
     const clearFormatting = () => {
         editor.update(() => {
             const selection = $getSelection();
@@ -165,6 +168,7 @@ function ToolbarPlugin() {
             }
         });
     };
+
     const insertUnorderedList = () => {
         if (blockType === 'bullet') {
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
@@ -172,6 +176,7 @@ function ToolbarPlugin() {
             editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
         }
     };
+
     const insertOrderedList = () => {
         if (blockType === 'number') {
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
@@ -277,11 +282,19 @@ export default function LexicalEditor({ onChange, label, required = false }: Lex
             </label>
             <div className="border rounded-md shadow-sm bg-black">
                 <LexicalComposer initialConfig={initialConfig}>
-                    <div className="editor-container">
+                    <div className="relative leading-7 font-normal">
                         <ToolbarPlugin />
                         <RichTextPlugin
-                            contentEditable={<ContentEditable className="editor-input min-h-[150px] p-3 list-disc list-decimal" />}
-                            placeholder={<div className="editor-placeholder p-3 mt-6 text-gray-500">Enter some text...</div>}
+                            contentEditable={
+                                <ContentEditable
+                                    className="min-h-[150px] resize-none text-[15px] relative tab-size-1 outline-0 p-4 caret-gray-600 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6"
+                                />
+                            }
+                            placeholder={
+                                <div className="text-gray-500 overflow-hidden absolute text-ellipsis top-4 left-3 text-[15px] select-none pointer-events-none">
+                                    Enter some text...
+                                </div>
+                            }
                             ErrorBoundary={({ children }) => <div>{children}</div>}
                         />
                         <HistoryPlugin />
