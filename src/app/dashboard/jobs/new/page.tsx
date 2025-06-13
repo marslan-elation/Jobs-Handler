@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { InputProps, TextareaProps, SelectProps } from "@/app/types/components";
 import BackButton from '@/components/BackButton';
+import LexicalEditor from '@/components/LexicalEditor';
 
 export default function NewJobPage() {
     const router = useRouter();
@@ -209,7 +210,11 @@ export default function NewJobPage() {
                 <Textarea label="Shared Experience" name="sharedExperience" value={form.sharedExperience} onChange={handleChange} required />
                 <Textarea label="Actual Experience" name="actualExperience" value={form.actualExperience} onChange={handleChange} required />
                 <Textarea label="Cover Letter (optional)" name="coverLetter" value={form.coverLetter} onChange={handleChange} />
-                <Textarea label="Additional Information (optional)" name="additionalInfo" value={form.additionalInfo} onChange={handleChange} />
+                <LexicalEditor 
+                    label="Additional Information (optional)" 
+                    value={form.additionalInfo} 
+                    onChange={(value) => handleChange({ target: { name: 'additionalInfo', value } } as any)} 
+                />
 
                 <Select label="Application Status" name="status" value={form.status} onChange={handleChange} options={applicationStatus} />
 
