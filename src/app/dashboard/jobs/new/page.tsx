@@ -100,13 +100,19 @@ export default function NewJobPage() {
 
         for (const field of requiredFields) {
             if (!form[field as keyof typeof form]?.toString().trim()) {
-                alert(`Please fill in the required field: ${field}`);
+                setErrorModal({
+                    message: `Please fill in the required field: ${field}`,
+                    visible: true
+                });
                 return;
             }
         }
 
         if (errors.salaryExpected || errors.salaryOffered) {
-            alert("Please fix the salary field errors before submitting.");
+            setErrorModal({
+                message: "Please fix the salary field errors before submitting.",
+                visible: true
+            });
             return;
         }
 
