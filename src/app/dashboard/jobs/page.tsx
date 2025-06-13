@@ -19,6 +19,7 @@ export default function JobsDashboard() {
         company: "",
         platform: "",
         jobType: "",
+        locationType: "",
         status: "",
         city: "",
         country: "",
@@ -28,7 +29,7 @@ export default function JobsDashboard() {
     const [showAll, setShowAll] = useState(false);
 
     const tableHeaders = [
-        'Sr. No', 'Company', 'Platform', 'Job Type', 'Job Link', 'Job Title',
+        'Sr. No', 'Company', 'Platform', 'Job Type', 'Location Type', 'Job Link', 'Job Title',
         'Resume (Drive Link)', 'Salary Offered', 'Salary Expected', 'Currency',
         'Status', 'Applied Date', 'Days Since Applied', 'Active', 'Delete'
     ];
@@ -38,6 +39,7 @@ export default function JobsDashboard() {
         { key: 'company', render: (job: Job) => job.company },
         { key: 'platform', render: (job: Job) => job.platform },
         { key: 'jobType', render: (job: Job) => job.jobType },
+        { key: 'locationType', render: (job: Job) => job.locationType },
         {
             key: 'jobLink',
             render: (job: Job) => (
@@ -55,8 +57,8 @@ export default function JobsDashboard() {
                 </Link>
             ),
         },
-        { key: 'salaryOffered', render: (job: Job) => `${job.salaryOffered} ${job.currency}` },
-        { key: 'salaryExpected', render: (job: Job) => `${job.salaryExpected} ${job.currency}` },
+        { key: 'salaryOffered', render: (job: Job) => `${Number(job.salaryOffered).toLocaleString()} ${job.currency}` },
+        { key: 'salaryExpected', render: (job: Job) => `${Number(job.salaryExpected).toLocaleString()} ${job.currency}` },
         { key: 'currency', render: (job: Job) => job.currency },
         { key: 'status', render: (job: Job) => job.status },
         {
@@ -139,12 +141,16 @@ export default function JobsDashboard() {
                     </Link>
                 </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
                 <input type="text" placeholder="Company" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, company: e.target.value })} />
                 <input type="text" placeholder="Platform" className="border p-2 rounded" onChange={(e) => setFilters({ ...filters, platform: e.target.value })} />
+                <select className="border p-2 rounded shadow-sm bg-black text-white" onChange={(e) => setFilters({ ...filters, locationType: e.target.value })}>
+                    <option value="">All Types</option>
+                    {["Remote", "Onsite", "Hybrid"].map(type => <option key={type}>{type}</option>)}
+                </select>
                 <select className="border p-2 rounded shadow-sm bg-black text-white" onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
                     <option value="">All Types</option>
-                    {["Remote", "Onsite", "Hybrid", "Contract", "Freelance", "Part-time", "Full-time"].map(type => <option key={type}>{type}</option>)}
+                    {["Contract", "Freelance", "Part-time", "Full-time"].map(type => <option key={type}>{type}</option>)}
                 </select>
                 <select className="border p-2 rounded shadow-sm bg-black text-white" onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
                     <option value="">All Statuses</option>
@@ -191,6 +197,7 @@ export default function JobsDashboard() {
                             (!filters.company || job.company?.toLowerCase().includes(filters.company.toLowerCase())) &&
                             (!filters.platform || job.platform?.toLowerCase().includes(filters.platform.toLowerCase())) &&
                             (!filters.jobType || job.jobType === filters.jobType) &&
+                            (!filters.locationType || job.locationType === filters.locationType) &&
                             (!filters.status || job.status === filters.status)
                         )
                             ?.sort((a: Job, b: Job) => {

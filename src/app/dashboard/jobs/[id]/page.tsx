@@ -1,17 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Job } from '@/types/job';
-import BackButton from '@/components/BackButton';
+import { JobApplicationSetting } from '@/app/types/jobAppSettings';
 import { FaLink } from "react-icons/fa";
 import { ImProfile } from "react-icons/im";
+import BackButton from '@/components/BackButton';
+import ToggleSwitch from '@/components/ToggleSwitch';
+import RichTextViewer from '@/components/RichTextViewer';
 
 const JobDetailPage = () => {
     const params = useParams();
     const id = params.id as string;
     const [job, setJob] = useState<Job | null>(null);
     const [updating, setUpdating] = useState(false);
+
+    const [settings, setSettings] = useState<JobApplicationSetting | null>(null);
+    const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -20,7 +26,40 @@ const JobDetailPage = () => {
                 .then((data) => setJob(data))
                 .catch((error) => console.error('Error fetching job:', error));
         }
+        fetchSettings();
     }, [id]);
+
+    const fetchExchangeRate = useCallback(async () => {
+        try {
+            if (!job?.currency || !settings?.localCurrency) return;
+
+            const from = job.currency.toLowerCase();
+            const to = settings.localCurrency.toLowerCase();
+            const res = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${from}.json`);
+            const data = await res.json();
+            const rate = data[from]?.[to];
+
+            if (rate) setExchangeRate(rate);
+        } catch (error) {
+            console.error("Failed to fetch exchange rate:", error);
+        }
+    }, [job?.currency, settings?.localCurrency]);
+
+    useEffect(() => {
+        if (settings?.convertCurrency && settings.localCurrency?.toLowerCase() !== job?.currency?.toLowerCase()) {
+            fetchExchangeRate();
+        }
+    }, [settings, job, fetchExchangeRate]);
+
+    const fetchSettings = async () => {
+        try {
+            const res = await fetch("/api/settings/job-application");
+            const data = await res.json();
+            setSettings(data);
+        } catch (error) {
+            console.error("Error fetching settings:", error);
+        }
+    };
 
     const updateField = async (field: string, value: Job[keyof Job]) => {
         if (!job) return;
@@ -57,6 +96,40 @@ const JobDetailPage = () => {
         }
     };
 
+    const formatConvertedSalaryDisplay = (
+        type: "offered" | "expected"
+    ): { label: string; value: string } | null => {
+        if (!settings?.convertCurrency || !job || !settings.localCurrency) return null;
+
+        const salary = type === "offered" ? job.salaryOffered : job.salaryExpected;
+        const sameCurrency = settings.localCurrency.toLowerCase() === job.currency.toLowerCase();
+
+        // Same currency logic
+        if (sameCurrency) {
+            if (job.isSalartPerAnnum) {
+                const monthly = Math.round(salary / 12);
+                return {
+                    label: `Salary ${type === "offered" ? "Offered" : "Expected"} in ${settings.localCurrency}/Month`,
+                    value: `${monthly.toLocaleString()} ${settings.localCurrency}`
+                };
+            } else {
+                const annual = salary * 12;
+                return {
+                    label: `Salary ${type === "offered" ? "Offered" : "Expected"} in ${settings.localCurrency}/Annum`,
+                    value: `${annual.toLocaleString()} ${settings.localCurrency}`
+                };
+            }
+        }
+
+        // Different currency: always convert monthly
+        if (!exchangeRate) return null;
+        const monthly = job.isSalartPerAnnum ? salary / 12 : salary;
+        const converted = Math.round(monthly * exchangeRate);
+        return {
+            label: `Salary ${type === "offered" ? "Offered" : "Expected"} in ${settings.localCurrency}/Month`,
+            value: `${converted.toLocaleString()} ${settings.localCurrency}`
+        };
+    };
 
     if (!job) return <div className="p-6 text-center">Loading job details...</div>;
 
@@ -73,11 +146,33 @@ const JobDetailPage = () => {
                 <Info label="Company" value={job.company} />
                 <Info label="Platform" value={job.platform} />
                 <Info label="Job Type" value={job.jobType} />
-                <Info label="Location" value={`${job.city}, ${job.country}`} />
+                <Info label="Location Type" value={job.locationType} />
+                <Info label="Location" value={
+                    job.city
+                        ? `${job.city}, ${job.country}`
+                        : job.country
+                } />
                 <Info label="Applied Date" value={new Date(job.appliedDate).toLocaleDateString()} />
-                <Info label="Salary Offered" value={`${job.salaryOffered} ${job.currency}`} />
-                <Info label="Salary Expected" value={`${job.salaryExpected} ${job.currency}`} />
-                <Info label="Currency" value={job.currency} />
+                <Info label="Salary Offered" value={`${Number(job.salaryOffered).toLocaleString()} ${job.currency}`} />
+                <Info label="Salary Expected" value={`${Number(job.salaryExpected).toLocaleString()} ${job.currency}`} />
+
+                {/* Conditionally render converted salaries */}
+                {settings?.convertCurrency && (
+                    <>
+                        {formatConvertedSalaryDisplay("offered") && (
+                            <Info
+                                label={formatConvertedSalaryDisplay("offered")!.label}
+                                value={formatConvertedSalaryDisplay("offered")!.value}
+                            />
+                        )}
+                        {formatConvertedSalaryDisplay("expected") && (
+                            <Info
+                                label={formatConvertedSalaryDisplay("expected")!.label}
+                                value={formatConvertedSalaryDisplay("expected")!.value}
+                            />
+                        )}
+                    </>
+                )}
             </div>
 
             {/* Status & Active Toggle */}
@@ -96,21 +191,12 @@ const JobDetailPage = () => {
                     </select>
                 </div>
 
-                <div className="flex items-center gap-10 mt-2 md:mt-0">
-                    <label className="text-sm font-medium">Active</label>
-                    <button
-                        type="button"
-                        onClick={() => updateActiveToggle()}
-                        disabled={updating}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${job.isActive ? 'bg-blue-500' : 'bg-gray-300'
-                            }`}
-                    >
-                        <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${job.isActive ? 'translate-x-6' : 'translate-x-1'
-                                }`}
-                        />
-                    </button>
-                </div>
+                <ToggleSwitch
+                    label="Active"
+                    checked={job.isActive}
+                    onChange={updateActiveToggle}
+                    disabled={updating}
+                />
             </div>
 
             {/* Links */}
@@ -133,6 +219,13 @@ const JobDetailPage = () => {
                 <div className=" shadow rounded-lg p-6 border space-y-2">
                     <h2 className="text-lg font-semibold">Cover Letter</h2>
                     <p>{job.coverLetter}</p>
+                </div>}
+
+            {/* Additional Information */}
+            {job.additionalInfo &&
+                <div className="shadow rounded-lg p-6 border space-y-2">
+                    <h2 className="text-lg font-semibold">Additional Information</h2>
+                    <RichTextViewer content={job.additionalInfo} />
                 </div>}
         </div>
     );
