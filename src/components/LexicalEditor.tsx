@@ -14,17 +14,11 @@ import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPl
 import { TRANSFORMERS } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, TextFormatType, REMOVE_TEXT_COMMAND, $createParagraphNode } from 'lexical';
+import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, TextFormatType, $createParagraphNode } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
 import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Quote, Eraser, Pilcrow } from 'lucide-react';
 import React from 'react';
-
-interface LexicalEditorProps {
-    value: string;
-    onChange: (value: string) => void;
-    label: string;
-    required?: boolean;
-}
+import { LexicalEditorProps } from '@/app/types/RichTextInterfaces';
 
 const theme = {
     ltr: 'ltr',
@@ -82,7 +76,7 @@ const initialConfig = {
 
 function OnChangePlugin({ onChange }: { onChange: (value: string) => void }) {
     const [editor] = useLexicalComposerContext();
-    
+
     useEffect(() => {
         return editor.registerUpdateListener(({ editorState }) => {
             onChange(editorState.read(() => editor.getRootElement()?.innerHTML || ''));
@@ -108,7 +102,7 @@ function ToolbarPlugin() {
                         underline: selection.hasFormat('underline'),
                     });
                     const anchorNode = selection.anchor.getNode();
-                    let parent = anchorNode.getParent();
+                    const parent = anchorNode.getParent();
                     let type = anchorNode.getType();
                     if (parent) type = parent.getType();
                     setBlockType(type);
@@ -274,7 +268,7 @@ function ToolbarPlugin() {
     );
 }
 
-export default function LexicalEditor({ value, onChange, label, required = false }: LexicalEditorProps) {
+export default function LexicalEditor({ onChange, label, required = false }: LexicalEditorProps) {
     return (
         <div className="space-y-1">
             <label className="block text-sm font-medium mb-1">

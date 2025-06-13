@@ -8,6 +8,7 @@ import { FaLink } from "react-icons/fa";
 import { ImProfile } from "react-icons/im";
 import BackButton from '@/components/BackButton';
 import ToggleSwitch from '@/components/ToggleSwitch';
+import RichTextViewer from '@/components/RichTextViewer';
 
 const JobDetailPage = () => {
     const params = useParams();
@@ -222,9 +223,9 @@ const JobDetailPage = () => {
 
             {/* Additional Information */}
             {job.additionalInfo &&
-                <div className=" shadow rounded-lg p-6 border space-y-2">
+                <div className="shadow rounded-lg p-6 border space-y-2">
                     <h2 className="text-lg font-semibold">Additional Information</h2>
-                    <p>{job.additionalInfo}</p>
+                    <RichTextViewer content={job.additionalInfo} />
                 </div>}
         </div>
     );
