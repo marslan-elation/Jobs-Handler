@@ -23,8 +23,8 @@ import { LexicalEditorProps } from '@/app/types/RichTextInterfaces';
 const theme = {
     ltr: 'ltr',
     rtl: 'rtl',
-    placeholder: 'text-gray-500 absolute top-4 left-3 text-sm select-none pointer-events-none',
-    paragraph: 'mb-4 relative',
+    placeholder: 'text-gray-500 absolute top-14 left-5 text-[15px] select-none pointer-events-none',
+    paragraph: 'mb-0 relative',
     heading: {
         h1: 'text-2xl font-extrabold mb-5',
         h2: 'text-xl font-bold mb-4',
@@ -39,7 +39,7 @@ const theme = {
         },
         ol: 'p-0 m-0 ml-4',
         ul: 'p-0 m-0 ml-4',
-        listitem: 'my-2 mx-8',
+        listitem: 'my-0 mx-8',
     },
     text: {
         bold: 'font-bold',
@@ -287,11 +287,11 @@ export default function LexicalEditor({ onChange, label, required = false }: Lex
                         <RichTextPlugin
                             contentEditable={
                                 <ContentEditable
-                                    className="min-h-[150px] resize-none text-[15px] relative tab-size-1 outline-0 p-4 caret-gray-600 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6"
+                                    className="min-h-[150px] resize-none text-[15px] relative tab-size-1 outline-0 p-4 caret-gray-600 leading-none [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6"
                                 />
                             }
                             placeholder={
-                                <div className="text-gray-500 overflow-hidden absolute text-ellipsis top-4 left-3 text-[15px] select-none pointer-events-none">
+                                <div className="text-gray-500 overflow-hidden absolute text-ellipsis top-14 left-5 text-[15px] select-none pointer-events-none">
                                     Enter some text...
                                 </div>
                             }
