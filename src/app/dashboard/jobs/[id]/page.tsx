@@ -210,7 +210,6 @@ const JobDetailPage = () => {
                 <h2 className="text-lg font-semibold">Experience</h2>
                 <p><strong>Shared Experience:</strong> {job.sharedExperience}</p>
                 <p><strong>Actual Experience:</strong> {job.actualExperience}</p>
-                {job.coverLetter && <p><strong>Cover Letter:</strong> {job.coverLetter}</p>}
                 <p><strong>Salary Per Annum:</strong> {job.isSalartPerAnnum ? 'Yes' : 'No'}</p>
             </div>
 
