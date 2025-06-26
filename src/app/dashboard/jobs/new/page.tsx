@@ -219,13 +219,17 @@ export default function NewJobPage() {
                 <LexicalEditor
                     label="Additional Information (optional)"
                     value={form.additionalInfo}
-                    onChange={(value) => handleChange({
-                        target: {
-                            name: 'additionalInfo',
-                            value,
-                            type: 'text'
-                        }
-                    } as React.ChangeEvent<HTMLInputElement>)}
+                    onChange={(value) => {
+                        const cleaned = value.trim();
+                        const isEmptyHtml = cleaned === '' || cleaned === '<p class="mb-0 relative"><br></p>';
+                        handleChange({
+                            target: {
+                                name: 'additionalInfo',
+                                value: isEmptyHtml ? '' : value,
+                                type: 'text'
+                            }
+                        } as React.ChangeEvent<HTMLInputElement>);
+                    }}
                 />
 
                 <Select label="Application Status" name="status" value={form.status} onChange={handleChange} options={applicationStatus} />
