@@ -7,11 +7,13 @@ import { SignJWT } from "jose";
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json(); // 'email' can be email or username
+  const body = await req.json();
+  const emailInput = body.email.toLowerCase(); // 'email' can be email or username
+  const password = body.password;
   await connectToDatabase();
 
   const user = await User.findOne({
-    $or: [{ email }, { username: email }]
+    $or: [{ email: emailInput }, { username: emailInput }]
   });
 
   if (!user) {
